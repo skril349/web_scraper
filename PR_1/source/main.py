@@ -62,13 +62,30 @@ for job in jobs:
     try:
         # Click a cada oferta
         job.click()
-        sleep(5)  # Esperem que es carregui la informació
+        sleep(random.uniform(5.0, 10.0))
+
+        # Empresa
+        try:
+            bussiness = driver.find_element(By.XPATH, '//div[@class="job-details-jobs-unified-top-card__company-name"]').text
+            print(f"Empresa: {bussiness}")
+        except Exception:
+            print("No s'ha trobat el nom de l'empresa")
 
         # Títol
-        title = driver.find_element(By.XPATH, '//h1[contains(@class, "t-24 t-bold inline")]').text
-        print(f"Títol: {title}")
+        try:
+            title = driver.find_element(By.XPATH, '//h1[contains(@class, "t-24 t-bold inline")]').text
+            print(f"Títol: {title}")
+        except Exception:
+            print("No s'ha trobat el títol")   
+
+        # Remot
+        try:
+            remote = driver.find_element(By.XPATH, '//ul/li/span/span/span/span[1]').text
+            print(f"Remot: {remote}")
+        except Exception:
+            print("No s'ha trobat informació de treball remot")
 
     except Exception as e:
-        print ('No hi ha títol')
+        print(f"Error al processar l'oferta: {e}")
 
 
