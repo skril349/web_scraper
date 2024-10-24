@@ -5,6 +5,8 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.keys import Keys
+from credentials import username as linkedin_username, password as linkedin_password
 
 # Configurem l'User-Agent i desactivem la pantalla de selecció de motor de cerca per defecte
 opts = Options()
@@ -14,21 +16,33 @@ opts.add_argument("--disable-search-engine-choice-screen")
 # Instanciem el driver de selenium
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=opts)
 
-# Anem a la pàgina d'Indeed
-driver.get('https://es.indeed.com/?r=us')
+# Anem a la pàgina de LinkedIn
+driver.get('https://www.linkedin.com/login')
 sleep(4)
 
-# Identifiquem el camp de cerca pel seu id i escrivim "data scientist" , (això ho faig de moment, la idea es que introduïm un array per params)
+# Email linkedin
+username_input = driver.find_element(By.ID, 'username')
+username_input.send_keys(linkedin_username)
 
-search_box = driver.find_element(By.ID, "text-input-what")
-search_box.clear()  # Esborrem contingut previ
-search_box.send_keys("data scientist")
+# password de linkedin
+password_input = driver.find_element(By.ID, 'password')
+password_input.send_keys(linkedin_password)
 
-sleep(2)
-
-# Identifiquem el botó de buscar oferta
-search_button = driver.find_element(By.CSS_SELECTOR, "button.yosegi-InlineWhatWhere-primaryButton")
-search_button.click()
+# login
+login_button = driver.find_element(By.XPATH, '//*[@type="submit"]')
+login_button.click()
 
 sleep(5)
 
+# Buscador
+search_bar = driver.find_element(By.XPATH, '//input[@aria-label="Buscar"]')
+
+# Escrivim data scientist
+search_bar.send_keys('Data Scientist')
+
+sleep(3)
+
+#Intro per buscar
+search_bar.send_keys(Keys.ENTER)
+
+sleep(5)
