@@ -1,3 +1,3 @@
 # credentials.py
-username = "email"
-password = "password"
+username = "email_test"
+password = "password_test"
