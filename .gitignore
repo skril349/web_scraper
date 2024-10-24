@@ -1,4 +1,4 @@
 # .gitignore
 
 credentials.py
-/source/credentials.py
+source/credentials.py
