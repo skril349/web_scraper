@@ -36,7 +36,7 @@ class LinkedInScraper:
         login_button = self.driver.find_element(By.XPATH, '//*[@type="submit"]')
         login_button.click()
 
-        sleep(10)
+        sleep(6)
 
     def search_jobs(self, job_title):
         # Buscador
@@ -80,6 +80,15 @@ class LinkedInScraper:
                     print(f"Títol: {title}")
                 except Exception:
                     print("No s'ha trobat el títol")   
+
+                # Lloc
+                try:
+                    #where = self.driver.find_element(By.XPATH, '//li[contains(@id,"ember")]//div[contains(@id,"ember")]/ul/li/span').text
+                    where = self.driver.find_element(By.XPATH, '//div[contains(@class, "mt2")]/span[1]').text
+
+                    print(f"Where: {where}")
+                except Exception as e:
+                    print("No s'ha trobat el text:", e)
 
                 # Remot
                 try:
