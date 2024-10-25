@@ -88,7 +88,21 @@ class LinkedInScraper:
                             where = self.driver.find_element(By.XPATH, '//div[contains(@class, "mt2")]/span[1]').text
                             print(f"Where: {where}")
                         except Exception as e:
-                            print("No s'ha trobat el text:", e)
+                            print("No s'ha trobat el lloc")
+
+                         # Quan s'ha publicat
+                        try:
+                            when = self.driver.find_element(By.XPATH, '//div[contains(@class, "mt2")]/span[3]').text
+                            print(f"When: {when}")
+                        except Exception as e:
+                            print("No s'ha trobat el quan s'ha publicat")
+                        
+                         # solucituds
+                        try:
+                            apply = self.driver.find_element(By.XPATH, '//div[contains(@class, "mt2")]/span[5]').text
+                            print(f"apply: {apply}")
+                        except Exception as e:
+                            print("No s'ha trobat les solicituds")
 
                         # Remot
                         try:
