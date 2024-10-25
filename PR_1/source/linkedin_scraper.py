@@ -59,46 +59,55 @@ class LinkedInScraper:
             print("No s'han trobat més resultats:", e)
 
     def scrape_job_info(self):
-        jobs = self.driver.find_elements(By.XPATH, '//li[contains(@id,"ember")]')
+            while True:
+                # Troba totes les ofertes de treball a la pàgina actual
+                jobs = self.driver.find_elements(By.XPATH, '//li[contains(@id,"ember")]')
 
-        for job in jobs:
-            try:
-                # Click a cada oferta
-                job.click()
-                sleep(random.uniform(2.0, 5.0))
+                for job in jobs:
+                    try:
+                        # Click a cada oferta
+                        job.click()
+                        sleep(random.uniform(2.0, 5.0))
 
-                # Empresa
+                        # Empresa
+                        try:
+                            bussiness = self.driver.find_element(By.XPATH, '//div[@class="job-details-jobs-unified-top-card__company-name"]').text
+                            print(f"Empresa: {bussiness}")
+                        except Exception:
+                            print("No s'ha trobat el nom de l'empresa")
+
+                        # Títol
+                        try:
+                            title = self.driver.find_element(By.XPATH, '//h1[contains(@class, "t-24 t-bold inline")]').text
+                            print(f"Títol: {title}")
+                        except Exception:
+                            print("No s'ha trobat el títol")   
+
+                        # Lloc
+                        try:
+                            where = self.driver.find_element(By.XPATH, '//div[contains(@class, "mt2")]/span[1]').text
+                            print(f"Where: {where}")
+                        except Exception as e:
+                            print("No s'ha trobat el text:", e)
+
+                        # Remot
+                        try:
+                            remote = self.driver.find_element(By.XPATH, '//ul/li/span/span/span/span[1]').text
+                            print(f"Remot: {remote}")
+                        except Exception:
+                            print("No s'ha trobat informació de treball remot")
+
+                    except Exception as e:
+                        print(f"Error al processar l'oferta: {e}")
+
+                # Botó Siguiente
                 try:
-                    bussiness = self.driver.find_element(By.XPATH, '//div[@class="job-details-jobs-unified-top-card__company-name"]').text
-                    print(f"Empresa: {bussiness}")
+                    next_button = self.driver.find_element(By.XPATH, '//button[@aria-label="Ver siguiente página"]')
+                    next_button.click()
+                    sleep(5)
                 except Exception:
-                    print("No s'ha trobat el nom de l'empresa")
-
-                # Títol
-                try:
-                    title = self.driver.find_element(By.XPATH, '//h1[contains(@class, "t-24 t-bold inline")]').text
-                    print(f"Títol: {title}")
-                except Exception:
-                    print("No s'ha trobat el títol")   
-
-                # Lloc
-                try:
-                    #where = self.driver.find_element(By.XPATH, '//li[contains(@id,"ember")]//div[contains(@id,"ember")]/ul/li/span').text
-                    where = self.driver.find_element(By.XPATH, '//div[contains(@class, "mt2")]/span[1]').text
-
-                    print(f"Where: {where}")
-                except Exception as e:
-                    print("No s'ha trobat el text:", e)
-
-                # Remot
-                try:
-                    remote = self.driver.find_element(By.XPATH, '//ul/li/span/span/span/span[1]').text
-                    print(f"Remot: {remote}")
-                except Exception:
-                    print("No s'ha trobat informació de treball remot")
-
-            except Exception as e:
-                print(f"Error al processar l'oferta: {e}")
+                    print("No s'ha trobat el botó 'Siguiente', o no hi ha més pàgines.")
+                    break  
 
     def close(self):
         # Tancar el navegador
