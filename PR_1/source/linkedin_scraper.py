@@ -36,7 +36,8 @@ class LinkedInScraper:
         login_button = self.driver.find_element(By.XPATH, '//*[@type="submit"]')
         login_button.click()
 
-        sleep(6)
+        #avegades demana captcha( fer manualment en 20 segons de marge)
+        sleep(20)
 
     def search_jobs(self, job_title):
         # Buscador
@@ -110,6 +111,33 @@ class LinkedInScraper:
                             print(f"Remot: {remote}")
                         except Exception:
                             print("No s'ha trobat informació de treball remot")
+                        
+                        # Requisits
+                        try:
+                            
+                            container_div  = self.driver.find_element(By.XPATH, '//div[@id="how-you-match-card-container"]')
+                            # Desplaça't fins al botó per assegurar-te que és visible
+                            self.driver.execute_script("arguments[0].scrollIntoView();", container_div )
+                            sleep(3)
+                            requisits_button = container_div.find_element(By.XPATH, './/button')
+                            requisits_button.click()
+                            sleep(3)
+                            requisits_list = self.driver.find_element(By.XPATH, '//ul[@class="job-details-skill-match-status-list"]')
+                            requisits = requisits_list.find_elements(By.TAG_NAME, 'li')
+                            r_text = []
+                            for requisit in requisits:
+                                try:
+                                    r_text.append(requisit.text)
+                                except Exception:
+                                    print("No s'ha pogut obtenir el text del requisit")
+                            print(f"Requisits: {r_text}")
+                            close_modal = self.driver.find_element(By.XPATH, '//button[@aria-label="Descartar"]')
+                            close_modal.click()
+                            sleep(3)
+
+                        except Exception:
+                            print("No s'ha trobat informació dels requisits")
+
 
                     except Exception as e:
                         print(f"Error al processar l'oferta: {e}")
