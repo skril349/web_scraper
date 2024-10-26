@@ -1,4 +1,5 @@
 import random
+import pandas as pd
 from time import sleep
 from selenium.webdriver.common.by import By
 from selenium import webdriver 
@@ -19,6 +20,9 @@ class LinkedInScraper:
         # Instanciem el driver de selenium
         self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=opts)
 
+        # Inicialitzem el DataFrame de pandas
+        self.jobs_data = pd.DataFrame(columns=['business', 'title', 'where', 'when', 'apply', 'remote', 'requisits', 'requisits_compleixes', 'requisits_no_compleixes'])
+
     def login(self):
         # Anem a la pàgina de LinkedIn
         self.driver.get('https://www.linkedin.com/login')
@@ -36,19 +40,15 @@ class LinkedInScraper:
         login_button = self.driver.find_element(By.XPATH, '//*[@type="submit"]')
         login_button.click()
 
-        #avegades demana captcha( fer manualment en 20 segons de marge)
+        # Avegades demana captcha (fer manualment en 20 segons de marge)
         sleep(20)
 
     def search_jobs(self, job_title):
         # Buscador
         search_bar = self.driver.find_element(By.XPATH, '//input[@aria-label="Buscar"]')
         search_bar.send_keys(job_title)
-
         sleep(8)
-
-        # Intro per buscar
         search_bar.send_keys(Keys.ENTER)
-
         sleep(4)
 
     def view_all_results(self):
@@ -60,106 +60,106 @@ class LinkedInScraper:
             print("No s'han trobat més resultats:", e)
 
     def scrape_job_info(self):
-            while True:
-                # Troba totes les ofertes de treball a la pàgina actual
-                jobs = self.driver.find_elements(By.XPATH, '//li[contains(@id,"ember")]')
-
-                for job in jobs:
-                    try:
-                        # Click a cada oferta
-                        job.click()
-                        sleep(random.uniform(2.0, 5.0))
-
-                        # Empresa
-                        try:
-                            bussiness = self.driver.find_element(By.XPATH, '//div[@class="job-details-jobs-unified-top-card__company-name"]').text
-                            print(f"Empresa: {bussiness}")
-                        except Exception:
-                            print("No s'ha trobat el nom de l'empresa")
-
-                        # Títol
-                        try:
-                            title = self.driver.find_element(By.XPATH, '//h1[contains(@class, "t-24 t-bold inline")]').text
-                            print(f"Títol: {title}")
-                        except Exception:
-                            print("No s'ha trobat el títol")   
-
-                        # Lloc
-                        try:
-                            where = self.driver.find_element(By.XPATH, '//div[contains(@class, "mt2")]/span[1]').text
-                            print(f"Where: {where}")
-                        except Exception as e:
-                            print("No s'ha trobat el lloc")
-
-                         # Quan s'ha publicat
-                        try:
-                            when = self.driver.find_element(By.XPATH, '//div[contains(@class, "mt2")]/span[3]').text
-                            print(f"When: {when}")
-                        except Exception as e:
-                            print("No s'ha trobat el quan s'ha publicat")
-                        
-                         # solucituds
-                        try:
-                            apply = self.driver.find_element(By.XPATH, '//div[contains(@class, "mt2")]/span[5]').text
-                            print(f"apply: {apply}")
-                        except Exception as e:
-                            print("No s'ha trobat les solicituds")
-
-                        # Remot
-                        try:
-                            remote = self.driver.find_element(By.XPATH, '//ul/li/span/span/span/span[1]').text
-                            print(f"Remot: {remote}")
-                        except Exception:
-                            print("No s'ha trobat informació de treball remot")
-                        
-                        # Requisits
-                        try:
-                            
-                            container_div  = self.driver.find_element(By.XPATH, '//div[@id="how-you-match-card-container"]')
-                            # Desplaça't fins al botó per assegurar-te que és visible
-                            self.driver.execute_script("arguments[0].scrollIntoView();", container_div )
-                            sleep(3)
-                            requisits_button = container_div.find_element(By.XPATH, './/button')
-                            requisits_button.click()
-                            sleep(3)
-                            requisits_list = self.driver.find_element(By.XPATH, '//ul[@class="job-details-skill-match-status-list"]')
-                            requisits = requisits_list.find_elements(By.TAG_NAME, 'li')
-                            r_text = []
-                            compleix_requisits = []
-                            no_compleix_requisits = []
-                            for requisit in requisits:
-                                try:
-                                    r_text.append(requisit.text)
-                                    if requisit.find_elements(By.XPATH, './/button[contains(@aria-label, "Añade")]'):
-                                        no_compleix_requisits.append(requisit.text)
-                                    else:
-                                        compleix_requisits.append(requisit.text)
-                                       
-                                except Exception:
-                                    print("No s'ha pogut obtenir el text del requisit")
-                            print(f"Requisits: {r_text}")
-                            print(f"Requisits que compleixes: {compleix_requisits}")
-                            print(f"Requisits que no compleixes: {no_compleix_requisits}")
-                            close_modal = self.driver.find_element(By.XPATH, '//button[@aria-label="Descartar"]')
-                            close_modal.click()
-                            sleep(3)
-
-                        except Exception:
-                            print("No s'ha trobat informació dels requisits")
-
-
-                    except Exception as e:
-                        print(f"Error al processar l'oferta: {e}")
-
-                # Botó Siguiente
+        while True:
+            jobs = self.driver.find_elements(By.XPATH, '//li[contains(@id,"ember")]')
+            for job in jobs:
                 try:
-                    next_button = self.driver.find_element(By.XPATH, '//button[@aria-label="Ver siguiente página"]')
-                    next_button.click()
-                    sleep(5)
-                except Exception:
-                    print("No s'ha trobat el botó 'Siguiente', o no hi ha més pàgines.")
-                    break  
+                    job.click()
+                    sleep(random.uniform(2.0, 5.0))
+
+                    business, title, where, when, apply, remote = '', '', '', '', '', ''
+                    r_text, compleix_requisits, no_compleix_requisits = [], [], []
+
+                    # Business
+                    try:
+                        business = self.driver.find_element(By.XPATH, '//div[@class="job-details-jobs-unified-top-card__company-name"]').text
+                    except Exception:
+                        print("No s'ha trobat el nom de l'empresa")
+                    # Title
+                    try:
+                        title = self.driver.find_element(By.XPATH, '//h1[contains(@class, "t-24 t-bold inline")]').text
+                    except Exception:
+                        print("No s'ha trobat el títol")   
+                    # Where
+                    try:
+                        where = self.driver.find_element(By.XPATH, '//div[contains(@class, "mt2")]/span[1]').text
+                    except Exception:
+                        print("No s'ha trobat el lloc")
+                    # When
+                    try:
+                        when = self.driver.find_element(By.XPATH, '//div[contains(@class, "mt2")]/span[3]').text
+                    except Exception:
+                        print("No s'ha trobat quan s'ha publicat")
+                    # Apply
+                    try:
+                        apply = self.driver.find_element(By.XPATH, '//div[contains(@class, "mt2")]/span[5]').text
+                    except Exception:
+                        print("No s'han trobat les sol·licituds")
+                    # Remote
+                    try:
+                        remote = self.driver.find_element(By.XPATH, '//ul/li/span/span/span/span[1]').text
+                    except Exception:
+                        print("No s'ha trobat informació de treball remot")
+                    
+                    # Requisits
+                    try:
+                        container_div = self.driver.find_element(By.XPATH, '//div[@id="how-you-match-card-container"]')
+                        self.driver.execute_script("arguments[0].scrollIntoView();", container_div)
+                        sleep(3)
+                        requisits_button = container_div.find_element(By.XPATH, './/button')
+                        requisits_button.click()
+                        sleep(3)
+                        requisits_list = self.driver.find_element(By.XPATH, '//ul[@class="job-details-skill-match-status-list"]')
+                        requisits = requisits_list.find_elements(By.TAG_NAME, 'li')
+                        
+                        for requisit in requisits:
+                            r_text.append(requisit.text)
+                            if requisit.find_elements(By.XPATH, './/button[contains(@aria-label, "Añade")]'):
+                                no_compleix_requisits.append(requisit.text)
+                            else:
+                                compleix_requisits.append(requisit.text)
+                                
+                        close_modal = self.driver.find_element(By.XPATH, '//button[@aria-label="Descartar"]')
+                        close_modal.click()
+                        sleep(3)
+
+                    except Exception:
+                        print("No s'ha trobat informació dels requisits")
+
+                    # Afegeix les dades al DataFrame
+                    new_row = pd.DataFrame([{
+                        'business': business,
+                        'title': title,
+                        'where': where,
+                        'when': when,
+                        'apply': apply,
+                        'remote': remote,
+                        'requisits': r_text,
+                        'requisits_compleixes': compleix_requisits,
+                        'requisits_no_compleixes': no_compleix_requisits,
+                        'numero_requisits': len(r_text),
+                        'numero_requisits_compleixes': len(compleix_requisits),
+                        'numero_requisits_no_compleixes': len(no_compleix_requisits)
+                        
+                    }])
+                    self.jobs_data = pd.concat([self.jobs_data, new_row], ignore_index=True)
+
+                except Exception as e:
+                    print(f"Error al processar l'oferta: {e}")
+
+            # Botó Siguiente
+            try:
+                break
+                next_button = self.driver.find_element(By.XPATH, '//button[@aria-label="Ver siguiente página"]')
+                next_button.click()
+                sleep(5)
+            except Exception:
+                print("No s'ha trobat el botó 'Siguiente', o no hi ha més pàgines.")
+                break  
 
     def close(self):
-        # Tancar el navegador
+        self.jobs_data.to_csv('../dataset/linkedin_jobs.csv', index=False, encoding='utf-8')
+        print("Dades guardades a 'linkedin_jobs.csv'")
+
+        # Tanca el navegador
         self.driver.quit()
