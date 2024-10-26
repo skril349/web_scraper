@@ -10,12 +10,15 @@ from selenium.webdriver.common.keys import Keys
 from credentials import username as linkedin_username, password as linkedin_password
 
 class LinkedInScraper:
-    def __init__(self):
+    def __init__(self, num_searches):
         # Configurem el User-Agent i desactivem la pantalla de selecció de motor de cerca per defecte
         opts = Options()
         opts.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36")
         opts.add_argument("--disable-search-engine-choice-screen")
         opts.add_argument('--disable-gpu')
+
+        self.num_searches = num_searches
+        self.current_search_count = 0
         
         # Instanciem el driver de selenium
         self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=opts)
@@ -60,12 +63,15 @@ class LinkedInScraper:
             print("No s'han trobat més resultats:", e)
 
     def scrape_job_info(self):
-        while True:
+        while self.current_search_count < self.num_searches:
             jobs = self.driver.find_elements(By.XPATH, '//li[contains(@id,"ember")]')
             for job in jobs:
+                if self.current_search_count >= self.num_searches:
+                    break
                 try:
                     job.click()
-                    sleep(random.uniform(2.0, 5.0))
+                    self.current_search_count += 1
+                    sleep(random.uniform(0.5, 2.0))
 
                     business, title, where, when, apply, remote = '', '', '', '', '', ''
                     r_text, compleix_requisits, no_compleix_requisits = [], [], []
@@ -74,41 +80,47 @@ class LinkedInScraper:
                     try:
                         business = self.driver.find_element(By.XPATH, '//div[@class="job-details-jobs-unified-top-card__company-name"]').text
                     except Exception:
+                        business = "NA"
                         print("No s'ha trobat el nom de l'empresa")
                     # Title
                     try:
                         title = self.driver.find_element(By.XPATH, '//h1[contains(@class, "t-24 t-bold inline")]').text
                     except Exception:
+                        title = "NA"
                         print("No s'ha trobat el títol")   
                     # Where
                     try:
                         where = self.driver.find_element(By.XPATH, '//div[contains(@class, "mt2")]/span[1]').text
                     except Exception:
+                        where = "NA"
                         print("No s'ha trobat el lloc")
                     # When
                     try:
                         when = self.driver.find_element(By.XPATH, '//div[contains(@class, "mt2")]/span[3]').text
                     except Exception:
+                        when = "NA"
                         print("No s'ha trobat quan s'ha publicat")
                     # Apply
                     try:
                         apply = self.driver.find_element(By.XPATH, '//div[contains(@class, "mt2")]/span[5]').text
                     except Exception:
+                        apply = "NA"
                         print("No s'han trobat les sol·licituds")
                     # Remote
                     try:
                         remote = self.driver.find_element(By.XPATH, '//ul/li/span/span/span/span[1]').text
                     except Exception:
+                        remote = "NA"
                         print("No s'ha trobat informació de treball remot")
                     
                     # Requisits
                     try:
                         container_div = self.driver.find_element(By.XPATH, '//div[@id="how-you-match-card-container"]')
                         self.driver.execute_script("arguments[0].scrollIntoView();", container_div)
-                        sleep(3)
+                        sleep(1)
                         requisits_button = container_div.find_element(By.XPATH, './/button')
                         requisits_button.click()
-                        sleep(3)
+                        sleep(1)
                         requisits_list = self.driver.find_element(By.XPATH, '//ul[@class="job-details-skill-match-status-list"]')
                         requisits = requisits_list.find_elements(By.TAG_NAME, 'li')
                         
@@ -121,9 +133,10 @@ class LinkedInScraper:
                                 
                         close_modal = self.driver.find_element(By.XPATH, '//button[@aria-label="Descartar"]')
                         close_modal.click()
-                        sleep(3)
+                        sleep(1)
 
                     except Exception:
+                        r_text = "NA"
                         print("No s'ha trobat informació dels requisits")
 
                     # Afegeix les dades al DataFrame
@@ -149,7 +162,6 @@ class LinkedInScraper:
 
             # Botó Siguiente
             try:
-                break
                 next_button = self.driver.find_element(By.XPATH, '//button[@aria-label="Ver siguiente página"]')
                 next_button.click()
                 sleep(5)
