@@ -10,7 +10,7 @@ from credentials import username as linkedin_username, password as linkedin_pass
 
 class LinkedInScraper:
     def __init__(self):
-        # Configurem l'User-Agent i desactivem la pantalla de selecció de motor de cerca per defecte
+        # Configurem el User-Agent i desactivem la pantalla de selecció de motor de cerca per defecte
         opts = Options()
         opts.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36")
         opts.add_argument("--disable-search-engine-choice-screen")
@@ -125,12 +125,21 @@ class LinkedInScraper:
                             requisits_list = self.driver.find_element(By.XPATH, '//ul[@class="job-details-skill-match-status-list"]')
                             requisits = requisits_list.find_elements(By.TAG_NAME, 'li')
                             r_text = []
+                            compleix_requisits = []
+                            no_compleix_requisits = []
                             for requisit in requisits:
                                 try:
                                     r_text.append(requisit.text)
+                                    if requisit.find_elements(By.XPATH, './/button[contains(@aria-label, "Añade")]'):
+                                        no_compleix_requisits.append(requisit.text)
+                                    else:
+                                        compleix_requisits.append(requisit.text)
+                                       
                                 except Exception:
                                     print("No s'ha pogut obtenir el text del requisit")
                             print(f"Requisits: {r_text}")
+                            print(f"Requisits que compleixes: {compleix_requisits}")
+                            print(f"Requisits que no compleixes: {no_compleix_requisits}")
                             close_modal = self.driver.find_element(By.XPATH, '//button[@aria-label="Descartar"]')
                             close_modal.click()
                             sleep(3)
