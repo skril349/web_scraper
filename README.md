@@ -17,11 +17,11 @@
 ## Descripció del repositori
 Aquest repositori conté un scraper per extreure informació de feines a LinkedIn. S'utilitzen les credencials personals per a iniciar sessió i extreure informació d'ofertes laborals segons el títol especificat com a paràmetre.
 
-- **`/source/main.py`**: Executa el scraper a partir dels paràmetres introduïts (`Títol del treball` i `Número de cerques`).
-- **`/source/linkedin_scraper.py`**: Conté la lògica del scraper, incloent-hi el login, la cerca de feines, i l'extracció d'informació.
-- **`/source/credentials.py`**: Conté les credencials (nom d'usuari i contrasenya) per a LinkedIn.
-- **`/source/requirements.txt`**: Llista de paquets Python utilitzats (Python 3.10).
-- **`/dataset/linkedin_jobs.csv`**: Fitxer CSV on es guarden les dades recollides pel scraper.
+- **`PR_1/source/main.py`**: Executa el scraper a partir dels paràmetres introduïts (`Títol del treball` i `Número de cerques`).
+- **`PR_1/source/linkedin_scraper.py`**: Conté la lògica del scraper, incloent-hi el login, la cerca de feines, i l'extracció d'informació.
+- **`PR_1/source/credentials.py`**: Conté les credencials (nom d'usuari i contrasenya) per a LinkedIn.
+- **`PR_1/source/requirements.txt`**: Llista de paquets Python utilitzats (Python 3.10).
+- **`PR_1/dataset/linkedin_jobs.csv`**: Fitxer CSV on es guarden les dades recollides pel scraper.
 
 ## Instruccions
 Per utilitzar el codi generat, segueix els passos següents:
