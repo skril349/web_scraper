@@ -1,6 +1,6 @@
 # Pràctica 1 - Tipologia i Cicle de Vida de les Dades  
 **Assignatura:** M2.951  
-**Semestre:** 0000-1
+**Semestre:** 0000-1    
 **Data:** 29-10-2024  
 
 ## Autors
