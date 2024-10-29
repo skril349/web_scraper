@@ -137,6 +137,8 @@ class LinkedInScraper:
 
                     except Exception:
                         r_text = "NA"
+                        compleix_requisits = "NA"
+                        no_compleix_requisits = "NA"
                         print("No s'ha trobat informació dels requisits")
 
                     # Afegeix les dades al DataFrame
