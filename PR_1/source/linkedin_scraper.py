@@ -65,7 +65,7 @@ class LinkedInScraper:
 
         except Exception as e:
             print("No s'ha pogut aplicar el filtre 'Empleos':", e)
-        
+            
     def scrape_job_info(self):
         while self.current_search_count < self.num_searches:
             try:
@@ -74,14 +74,18 @@ class LinkedInScraper:
                 print("No s'han trobat els elements de treballs:", e)
                 break
             
+            if not jobs:  
+                print("No s'han trobat més ofertes a la pàgina actual.")
+                break
+            
             for idx, job in enumerate(jobs):
                 if self.current_search_count >= self.num_searches:
                     break
                 
-                # scroll cada 5 jobs
+                # Desplaçament cada 5 elements
                 if idx % 5 == 0 and idx != 0:
                     self.driver.execute_script("arguments[0].scrollIntoView();", job)
-                    sleep(2) 
+                    sleep(2)
 
                 try:
                     job.click()
@@ -178,19 +182,21 @@ class LinkedInScraper:
                     }])
                     self.jobs_data = pd.concat([self.jobs_data, new_row], ignore_index=True)
                     print(title)
+                    
+                    # Si és l'últim <li> presiona siguiente
+                    if idx == 24:
+                        try:
+                            next_button = self.driver.find_element(By.XPATH, '//button[@aria-label="Ver siguiente página"]')
+                            next_button.click()
+                            sleep(5)
+                            break  
+                        except Exception:
+                            print("No s'ha trobat el botó 'Siguiente', o no hi ha més pàgines.")
+                            return 
                 except Exception as e:
                     print(f"Error al processar l'oferta: {e}")
 
-            # Botó Siguiente
-            try:
-                next_button = self.driver.find_element(By.XPATH, '//button[@aria-label="Ver siguiente página"]')
-                next_button.click()
-                sleep(5)
-            except Exception:
-                print("No s'ha trobat el botó 'Siguiente', o no hi ha més pàgines.")
-                break  
-
-    
+        
     def close(self):
         self.jobs_data.to_csv('../dataset/linkedin_jobs.csv', index=False, encoding='utf-8')
         print("Dades guardades a 'linkedin_jobs.csv'")
