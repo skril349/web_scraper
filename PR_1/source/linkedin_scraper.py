@@ -62,17 +62,10 @@ class LinkedInScraper:
             filter_button.click()
             sleep(3)
             print("Filtre 'Empleos' aplicat correctament.")
-            # try:
-            #     all_results_button = self.driver.find_element(By.XPATH, '//div[@class="search-results__cluster-bottom-banner artdeco-button artdeco-button--tertiary artdeco-button--muted"]')
-            #     all_results_button.click()
-            #     sleep(3)
-                
-            # except Exception as e:
-            #     print("No s'han trobat més resultats:", e)
+
         except Exception as e:
             print("No s'ha pogut aplicar el filtre 'Empleos':", e)
         
-
     def scrape_job_info(self):
         while self.current_search_count < self.num_searches:
             try:
@@ -80,9 +73,16 @@ class LinkedInScraper:
             except Exception as e:
                 print("No s'han trobat els elements de treballs:", e)
                 break
-            for job in jobs:
+            
+            for idx, job in enumerate(jobs):
                 if self.current_search_count >= self.num_searches:
                     break
+                
+                # scroll cada 5 jobs
+                if idx % 5 == 0 and idx != 0:
+                    self.driver.execute_script("arguments[0].scrollIntoView();", job)
+                    sleep(2) 
+
                 try:
                     job.click()
                     self.current_search_count += 1
@@ -97,30 +97,35 @@ class LinkedInScraper:
                     except Exception:
                         business = "NA"
                         print("No s'ha trobat el nom de l'empresa")
+                    
                     # Title
                     try:
                         title = self.driver.find_element(By.XPATH, '//h1[contains(@class, "t-24 t-bold inline")]').text
                     except Exception:
                         title = "NA"
-                        print("No s'ha trobat el títol")   
+                        print("No s'ha trobat el títol")
+                    
                     # Where
                     try:
                         where = self.driver.find_element(By.XPATH, '//div[contains(@class, "mt2")]/span[1]').text
                     except Exception:
                         where = "NA"
                         print("No s'ha trobat el lloc")
+                    
                     # When
                     try:
                         when = self.driver.find_element(By.XPATH, '//div[contains(@class, "mt2")]/span[3]').text
                     except Exception:
                         when = "NA"
                         print("No s'ha trobat quan s'ha publicat")
+                    
                     # Apply
                     try:
                         apply = self.driver.find_element(By.XPATH, '//div[contains(@class, "mt2")]/span[5]').text
                     except Exception:
                         apply = "NA"
                         print("No s'han trobat les sol·licituds")
+                    
                     # Remote
                     try:
                         remote = self.driver.find_element(By.XPATH, '//ul/li/span/span/span/span[1]').text
@@ -170,7 +175,6 @@ class LinkedInScraper:
                         'numero_requisits': len(r_text),
                         'numero_requisits_compleixes': len(compleix_requisits),
                         'numero_requisits_no_compleixes': len(no_compleix_requisits)
-                        
                     }])
                     self.jobs_data = pd.concat([self.jobs_data, new_row], ignore_index=True)
                     print(title)
@@ -186,6 +190,7 @@ class LinkedInScraper:
                 print("No s'ha trobat el botó 'Siguiente', o no hi ha més pàgines.")
                 break  
 
+    
     def close(self):
         self.jobs_data.to_csv('../dataset/linkedin_jobs.csv', index=False, encoding='utf-8')
         print("Dades guardades a 'linkedin_jobs.csv'")
