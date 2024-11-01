@@ -141,10 +141,10 @@ class LinkedInScraper:
                     try:
                         container_div = self.driver.find_element(By.XPATH, '//div[@id="how-you-match-card-container"]')
                         self.driver.execute_script("arguments[0].scrollIntoView();", container_div)
-                        sleep(2)
+                        sleep(random.uniform(3, 5.0))
                         requisits_button = container_div.find_element(By.XPATH, './/button')
                         requisits_button.click()
-                        sleep(2)
+                        sleep(random.uniform(3, 5.0))
                         requisits_list = self.driver.find_element(By.XPATH, '//ul[@class="job-details-skill-match-status-list"]')
                         requisits = requisits_list.find_elements(By.TAG_NAME, 'li')
                         
