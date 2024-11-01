@@ -52,26 +52,41 @@ class LinkedInScraper:
         search_bar.send_keys(job_title)
         sleep(8)
         search_bar.send_keys(Keys.ENTER)
-        sleep(4)
+        sleep(8)
+        
+        
 
     def view_all_results(self):
         try:
-            all_results_button = self.driver.find_element(By.XPATH, '//div[@class="search-results__cluster-bottom-banner artdeco-button artdeco-button--tertiary artdeco-button--muted"]')
-            all_results_button.click()
+            filter_button = self.driver.find_element(By.XPATH, '//nav//ul/li/button[text()="Empleos"]')
+            filter_button.click()
             sleep(3)
+            print("Filtre 'Empleos' aplicat correctament.")
+            # try:
+            #     all_results_button = self.driver.find_element(By.XPATH, '//div[@class="search-results__cluster-bottom-banner artdeco-button artdeco-button--tertiary artdeco-button--muted"]')
+            #     all_results_button.click()
+            #     sleep(3)
+                
+            # except Exception as e:
+            #     print("No s'han trobat més resultats:", e)
         except Exception as e:
-            print("No s'han trobat més resultats:", e)
+            print("No s'ha pogut aplicar el filtre 'Empleos':", e)
+        
 
     def scrape_job_info(self):
         while self.current_search_count < self.num_searches:
-            jobs = self.driver.find_elements(By.XPATH, '//li[contains(@id,"ember")]')
+            try:
+                jobs = self.driver.find_elements(By.XPATH, '//li[contains(@id,"ember")]')
+            except Exception as e:
+                print("No s'han trobat els elements de treballs:", e)
+                break
             for job in jobs:
                 if self.current_search_count >= self.num_searches:
                     break
                 try:
                     job.click()
                     self.current_search_count += 1
-                    sleep(random.uniform(0.5, 2.0))
+                    sleep(random.uniform(2, 5.0))
 
                     business, title, where, when, apply, remote = '', '', '', '', '', ''
                     r_text, compleix_requisits, no_compleix_requisits = [], [], []
@@ -117,10 +132,10 @@ class LinkedInScraper:
                     try:
                         container_div = self.driver.find_element(By.XPATH, '//div[@id="how-you-match-card-container"]')
                         self.driver.execute_script("arguments[0].scrollIntoView();", container_div)
-                        sleep(1)
+                        sleep(2)
                         requisits_button = container_div.find_element(By.XPATH, './/button')
                         requisits_button.click()
-                        sleep(1)
+                        sleep(2)
                         requisits_list = self.driver.find_element(By.XPATH, '//ul[@class="job-details-skill-match-status-list"]')
                         requisits = requisits_list.find_elements(By.TAG_NAME, 'li')
                         
@@ -158,7 +173,7 @@ class LinkedInScraper:
                         
                     }])
                     self.jobs_data = pd.concat([self.jobs_data, new_row], ignore_index=True)
-
+                    print(title)
                 except Exception as e:
                     print(f"Error al processar l'oferta: {e}")
 
