@@ -12,6 +12,7 @@
 
 ## Enllaç DOI Zenodo
 
+https://zenodo.org/records/14035759
 
 
 ## Descripció del repositori
