@@ -19,6 +19,7 @@ class LinkedInScraper:
 
         self.num_searches = num_searches
         self.current_search_count = 0
+        self.jobs_on_screen = 0
         
         # Instanciem el driver de selenium
         self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=opts)
@@ -77,13 +78,24 @@ class LinkedInScraper:
             if not jobs:  
                 print("No s'han trobat més ofertes a la pàgina actual.")
                 break
-            
+                        
+            for job in jobs:
+                is_in_viewport = self.driver.execute_script(
+                    "var rect = arguments[0].getBoundingClientRect();"
+                    "return (rect.top >= 0 && rect.left >= 0 && "
+                    "rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && "
+                    "rect.right <= (window.innerWidth || document.documentElement.clientWidth));",
+                    job
+                )
+                if is_in_viewport:
+                    self.jobs_on_screen += 1
+
             for idx, job in enumerate(jobs):
                 if self.current_search_count >= self.num_searches:
                     break
                 
-                # Desplaçament cada 5 elements
-                if idx % 5 == 0 and idx != 0:
+                # Desplaçament cada jobs_on_screen elements
+                if idx % self.jobs_on_screen == 0 and idx != 0:
                     self.driver.execute_script("arguments[0].scrollIntoView();", job)
                     sleep(2)
 
